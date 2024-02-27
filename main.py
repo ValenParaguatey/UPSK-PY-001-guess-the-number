@@ -6,27 +6,26 @@ def guessTheNumber():
     print("¿Para iniciar, dime cuál es tu nombre?", end=" ")
     namePlayer = input(": ")
     if namePlayer.strip() == "":
-        namePlayer = "Desconocido"
+        namePlayer = "Player1"
     print(namePlayer + ", escribe un número entero entre 1 y 100: ")
     
-    # Inicializar la suposición del usuario
+    # Inicializar la suposición del usuario y ordenador
     suposicion_usuario = []
+    suposicion_ordenador = []
 
-    # Obtener la entrada del usuario y validarla
+    # Validación de la entrada de usuario
     entrada_usuario = obtenerEntradaUsuario()
 
     # Agregar la primera suposición del usuario
     suposicion_usuario.append(entrada_usuario)
 
-    # Generar el número secreto
+    # Se genera el número secreto
     numero_secreto = generateSecretNumber()
 
     while True:
-        # Resolver la suposición del jugador
         turno_jugador = resolveNumber(numero_secreto, entrada_usuario)
         printResolve(turno_jugador)
-
-        # Si el jugador adivina el número, termina el juego
+        # Si el jugador adivina el número, termina el juego y se muestran las suposiciones del usuario ganador
         if turno_jugador == True:
             print("¡" + namePlayer + " Correcto! Adivinaste el número secreto ")
             print("Tus intentos fueron: ", end=" ")
@@ -35,7 +34,7 @@ def guessTheNumber():
 
         # Generar una suposición del ordenador basada en la pista dada por el jugador
         entrada_ordenador = numberBasedOnHint(numero_secreto, turno_jugador, suposicion_usuario)
-        suposicion_usuario.append(entrada_ordenador)
+        suposicion_ordenador.append(entrada_ordenador)
         print("--Mi turno: ", end=" ")
         print(entrada_ordenador)
 
@@ -47,14 +46,14 @@ def guessTheNumber():
         if turno_ordenador == True:
             print("He ganado!! adiviné el número secreto")
             print("Mis intentos fueron: ", end=" ")
-            print(suposicion_usuario)
+            print(suposicion_ordenador)
             break
 
         # Obtener la próxima entrada del usuario y agregarla a las suposiciones del usuario
         entrada_usuario = obtenerEntradaUsuario()
         suposicion_usuario.append(entrada_usuario)
 
-    # Preguntar al usuario si desea seguir jugando
+    # Se pregunta al usuario si desea seguir jugando
     new_play = input('¿Quieres seguir jugando? (S/N)').upper()
     if new_play == 'S':
         guessTheNumber()
