@@ -1,76 +1,112 @@
 import random
 
-def numero_aleatorio():
-    #Generar un número aleatorio entre 1 y 100 usando módulo randint
-    return random.randint(1,100)
+def guessTheNumber():
+    # Dar la bienvenida al juego, y preguntar nombre al usuario
+    print("¡Bienvenida a GUESS THE NUMBER!")
+    print("¿Para iniciar, dime cuál es tu nombre?", end=" ")
+    namePlayer = input(": ")
+    if namePlayer.strip() == "":
+        namePlayer = "Desconocido"
+    print(namePlayer + ", escribe un número entero entre 1 y 100: ")
+    
+    # Inicializar la suposición del usuario
+    suposicion_usuario = []
 
-def turno_jugadora1(numeroAleatorio):
-   
-   #Lista de suposiciones jugadora1 y ordenador
-    suposiciones_jugadora1 = []
-    suposiciones_ordenador = []
+    # Obtener la entrada del usuario y validarla
+    entrada_usuario = obtenerEntradaUsuario()
+
+    # Agregar la primera suposición del usuario
+    suposicion_usuario.append(entrada_usuario)
+
+    # Generar el número secreto
+    numero_secreto = generateSecretNumber()
 
     while True:
-        jugadora1 = int(input('Ingrese un número entre 1 y 100: '))
-        suposiciones_jugadora1.append(jugadora1)
+        # Resolver la suposición del jugador
+        turno_jugador = resolveNumber(numero_secreto, entrada_usuario)
+        printResolve(turno_jugador)
 
-        if jugadora1 == numeroAleatorio:
-         print(f'Correcto! Adivinaste el número secreto {numeroAleatorio}')
-         return True, suposiciones_jugadora1, suposiciones_ordenador #Devolver valores cuando la jugadora gane
-        elif jugadora1 > numeroAleatorio:
-          print(f"Muy alto... El número es más pequeño que {jugadora1}")
-          pista = 'menor'
-        else:
-          print(f"Muy bajo... El número es más grande que {jugadora1}")
-          pista = 'mayor'
-
-        #Turno computador
-        if pista == 'menor':     
-         computador = random.randint(1,jugadora1-1)
-        elif pista == 'mayor':
-         computador = random.randint(jugadora1 +1, 100) 
-
-        suposiciones_ordenador.append(computador)
-
-        print(f'El turno del ordenador: {computador}')
-        if computador == numeroAleatorio:
-            print(f'El ordenador ha ganado! El número secreto {numeroAleatorio}')
-            return False, suposiciones_jugadora1, suposiciones_ordenador
-        elif computador < numeroAleatorio:
-            print('El ordenador ha hecho una suposición más baja al número secreto')
-        else:
-            print('El ordenador ha hecho una suposición más alta al número secreto')
- 
-        
-def juego_numeroSecreto():
-  print("Bienvenida! Adivina el número secreto!")
-  numeroAleatorio = numero_aleatorio()
-  while True: 
-    jugador_gano,suposiciones_jugadora1, suposiciones_ordenador = turno_jugadora1(numeroAleatorio)
-    if jugador_gano:
-            print('Suposiciones del jugador ganador:')
-            for suposicion in suposiciones_jugadora1:
-                print(suposicion)
-    else: 
-            print('Suposiciones del ganador ordenador')
-            for suposicion in suposiciones_ordenador:
-                print(suposicion)
-
-      
-    new_play = input('¿Quieres seguir jugando? (S/N): ').upper()
-    if new_play != 'S':
-            print('Gracias por jugar, Hasta la próxima!') 
+        # Si el jugador adivina el número, termina el juego
+        if turno_jugador == True:
+            print("¡" + namePlayer + " Correcto! Adivinaste el número secreto ")
+            print("Tus intentos fueron: ", end=" ")
+            print(suposicion_usuario)
             break
-    
-    
-    
-juego_numeroSecreto()
-    
-  
+
+        # Generar una suposición del ordenador basada en la pista dada por el jugador
+        entrada_ordenador = numberBasedOnHint(numero_secreto, turno_jugador, suposicion_usuario)
+        suposicion_usuario.append(entrada_ordenador)
+        print("--Mi turno: ", end=" ")
+        print(entrada_ordenador)
+
+        # Resolver la suposición del ordenador
+        turno_ordenador = resolveNumber(numero_secreto, entrada_ordenador)
+        printResolve(turno_ordenador)
+
+        # Si el ordenador adivina el número, termina el juego
+        if turno_ordenador == True:
+            print("He ganado!! adiviné el número secreto")
+            print("Mis intentos fueron: ", end=" ")
+            print(suposicion_usuario)
+            break
+
+        # Obtener la próxima entrada del usuario y agregarla a las suposiciones del usuario
+        entrada_usuario = obtenerEntradaUsuario()
+        suposicion_usuario.append(entrada_usuario)
+
+    # Preguntar al usuario si desea seguir jugando
+    new_play = input('¿Quieres seguir jugando? (S/N)').upper()
+    if new_play == 'S':
+        guessTheNumber()
+    else:
+        print('Gracias por jugar, ¡Hasta la próxima!')
 
 
+def generateSecretNumber():
+    return random.randint(1, 100)
 
-        
+
+def numberBasedOnHint(secret_number, hint, user_guesses):
+    if hint == 'menor':
+        max_guess = max(user_guesses)
+        return random.randint(min(secret_number, max_guess + 1), 100)
+    elif hint == 'mayor':
+        min_guess = min(user_guesses)
+        return random.randint(1, max(secret_number, min_guess - 1))
 
 
+def resolveNumber(numero_correcto, entrada_usuario):
+    if entrada_usuario > numero_correcto:
+        return "mayor"
+    elif entrada_usuario < numero_correcto:
+        return "menor"
+    elif entrada_usuario == numero_correcto:
+        return True
 
+
+def printResolve(resolve):
+    if resolve == "mayor":
+        print("Muy alto... El número secreto es menor")
+    elif resolve == "menor":
+        print("Muy bajo... El número secreto es mayor")
+
+
+def validateInput(guess_number):
+    # si no es un numero entero o la cadena está vacia
+    if not guess_number.isdigit() or not guess_number.strip():
+        return False
+    else:
+        return True
+
+def obtenerEntradaUsuario():
+    entrada_usuario = input('--> ')
+    # Validar la entrada del usuario
+    while not validateInput(entrada_usuario):
+        print("Por favor, escribe un número válido entre 1 y 100")
+        entrada_usuario = input('--> ')
+    # Convertir la entrada del usuario a entero
+    return int(entrada_usuario)
+
+
+if __name__ == "__main__":
+    guessTheNumber()
