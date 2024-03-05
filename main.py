@@ -33,7 +33,7 @@ def guessTheNumber():
             break
 
         # Generar una suposición del ordenador basada en la pista dada por el jugador
-        entrada_ordenador = numberBasedOnHint(numero_secreto, turno_jugador, suposicion_usuario)
+        entrada_ordenador = numberBasedOnHint(turno_jugador, suposicion_usuario)
         suposicion_ordenador.append(entrada_ordenador)
         print("--Mi turno: ", end=" ")
         print(entrada_ordenador)
@@ -64,14 +64,19 @@ def guessTheNumber():
 def generateSecretNumber():
     return random.randint(1, 100)
 
-
-def numberBasedOnHint(secret_number, hint, user_guesses):
+def numberBasedOnHint(hint, user_guesses):
     if hint == 'menor':
         max_guess = max(user_guesses)
-        return random.randint(min(secret_number, max_guess + 1), 100)
+        if max_guess == 100:
+            return 100
+        else:
+            return random.randint(min(user_guesses) + 1, 100)
     elif hint == 'mayor':
         min_guess = min(user_guesses)
-        return random.randint(1, max(secret_number, min_guess - 1))
+        if min_guess == 1:
+            return 1
+        else:
+            return random.randint(1, max(user_guesses) - 1)
 
 
 def resolveNumber(numero_correcto, entrada_usuario):
